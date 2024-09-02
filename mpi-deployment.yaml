@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mpi-deployment-1
+  labels:
+    app: mpi
+spec:
+  replicas: 2  # Number of pod replicas to be created for this deployment
+  selector:
+    matchLabels:
+      app: mpi
+  template:
+    metadata:
+      labels:
+        app: mpi  
+    spec:
+      containers:
+      - name: mpi-node
+        image: guswns531/mpi-docker:v1  # Custom Docker image used for MPI computations
+        volumeMounts:
+        - name: workspace
+          mountPath: /mpi-dir  # Mounts the NFS shared directory inside the container
+        ports:
+        - containerPort: 22  # SSH port used for MPI communication between nodes
+      volumes:
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: nfs-pvc  # Binds the NFS Persistent Volume Claim to this deployment
+      nodeSelector:
+        kubernetes.io/hostname: ns01  # Ensures that the pods are deployed specifically on Node1 (master)
+      tolerations:
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"  # Allows scheduling on control-plane nodes despite NoSchedule taint
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mpi-deployment-2
+  labels:
+    app: mpi
+spec:
+  replicas: 2  # Number of pod replicas to be created for this deployment
+  selector:
+    matchLabels:
+      app: mpi  
+  template:
+    metadata:
+      labels:
+        app: mpi  
+    spec:
+      containers:
+      - name: mpi-node
+        image: guswns531/mpi-docker:v1  # Custom Docker image used for MPI computations
+        volumeMounts:
+        - name: workspace
+          mountPath: /mpi-dir  # Mounts the NFS shared directory inside the container
+        ports:
+        - containerPort: 22  # SSH port used for MPI communication between nodes
+      volumes:
+      - name: workspace
+        persistentVolumeClaim:
+          claimName: nfs-pvc  # Binds the NFS Persistent Volume Claim to this deployment
+      nodeSelector:
+        kubernetes.io/hostname: ns02  # Ensures that the pods are deployed specifically on Node2 (worker node)
