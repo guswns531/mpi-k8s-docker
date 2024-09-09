@@ -46,6 +46,9 @@ sudo apt-mark hold kubelet kubeadm kubectl
 To ensure Kubernetes functions correctly, swap must be disabled. The second command modifies the node configuration, so if you plan to remove Kubernetes before restarting, you can skip it.
 ```bash
 swapoff -a
+```
+** Attention ** 
+```bash
 # To disable swap on startup, modify /etc/fstab
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 ```
